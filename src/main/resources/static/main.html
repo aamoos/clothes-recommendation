@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="https://unpkg.com/vue@3"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        .title {
+          color: red;
+        }
+    </style>
+
+</head>
+<body>
+<div id="app">
+    <h1>{{ message }}</h1>
+    <h1>{{ message.split('').reverse().join('') }}</h1>
+    <p>Count is: {{ counter.count }}</p>
+</div>
+<br>
+<div id="app2">
+    <h1 :class="titleClass">Make me red</h1>
+</div>
+<br>
+<div id="app3">
+    <button @click="increment">count is: {{ count }}</button>
+</div>
+<br>
+<div id="app4">
+    <input v-model="text" placeholder="Type here">
+    <p>{{ text }}</p>
+</div>
+<br>
+<div id="app5">
+    <button @click="toggle">toggle</button>
+    <h1 v-if="awesome">Vue is awesome!</h1>
+    <h1 v-else>Oh no 😢</h1>
+</div>
+<br>
+<div id="app6">
+    <form @submit.prevent="addTodo">
+        <input v-model="newTodo"></form>
+    <button>Add Todo</button>
+    </form>
+    <ul>
+        <li v-for="todo in filteredTodos" :key="todo.id">
+            <input type="checkbox" v-model="todo.done">
+            <span :class="{ done: todo.done }">{{ todo.text }}</span>
+            <button @click="removeTodo(todo)">X</button>
+        </li>
+    </ul>
+    <button @click="hideCompleted = !hideCompleted">
+        {{ hideCompleted ? 'Show all' : 'Hide completed' }}
+    </button>
+</div>
+
+<div id="app7">
+    <p ref="p">hello</p>
+</div>
+
+<div id="app8">
+    <p>Todo id: {{ todoId }}</p>
+    <button @click="todoId++">Fetch next todo</button>
+    <p v-if="!todoData">Loading...</p>
+    <pre v-else>{{ todoData }}</pre>
+</div>
+
+</body>
+</html>
+
+<script>
+const { createApp } = Vue
+
+createApp({
+  data() {
+    return {
+      message: 'Hello World!',
+      counter: {
+        count: 0
+      }
+    }
+  }
+}).mount('#app')
+
+createApp({
+  data() {
+    return {
+      titleClass: 'title'
+    }
+  }
+}).mount('#app2')
+
+createApp({
+  data() {
+    return {
+      count: 0
+    }
+  },
+  methods: {
+    increment() {
+      this.count++
+    }
+  }
+}).mount('#app3')
+
+createApp({
+  data() {
+    return {
+      text: ''
+    }
+  }
+}).mount('#app4')
+
+createApp({
+  data() {
+    return {
+      awesome: true
+    }
+  },
+  methods: {
+    toggle() {
+      this.awesome = !this.awesome
+    }
+  }
+}).mount('#app5')
+
+let id = 0
+
+createApp({
+  data() {
+    return {
+      newTodo: '',
+      hideCompleted: false,
+      todos: [
+        { id: id++, text: 'Learn HTML', done: true },
+        { id: id++, text: 'Learn JavaScript', done: true },
+        { id: id++, text: 'Learn Vue', done: false }
+      ]
+    }
+  },
+  computed: {
+    filteredTodos() {
+      return this.hideCompleted
+        ? this.todos.filter((t) => !t.done)
+        : this.todos
+    }
+  },
+  methods: {
+    addTodo() {
+      this.todos.push({ id: id++, text: this.newTodo, done: false })
+      this.newTodo = ''
+    },
+    removeTodo(todo) {
+      this.todos = this.todos.filter((t) => t !== todo)
+    }
+  }
+}).mount('#app6')
+
+createApp({
+  mounted() {
+    this.$refs.p.textContent = 'mounted!'
+  }
+}).mount('#app7')
+
+createApp({
+  data() {
+    return {
+      todoId: 1,
+      todoData: null
+    }
+  },
+  methods: {
+    async fetchData() {
+      this.todoData = null
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/todos/${this.todoId}`
+      )
+      this.todoData = await res.json()
+    }
+  },
+  mounted() {
+    this.fetchData()
+  },
+  watch: {
+    todoId() {
+      this.fetchData()
+    }
+  }
+}).mount('#app8')
+</script>
